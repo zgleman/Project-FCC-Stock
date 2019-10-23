@@ -23,6 +23,17 @@ module.exports = function (app) {
 
   app.route('/api/stock-prices')
     .get(function (req, res){
+      var stockName = req.query.stock
+      console.log(stockName);
+    if(stockName.isArray()){
+      res.json({wait: 'route in progress'})
+    } else {
+      Stock.documentCount({ stock: stockName}, function(err, count){
+        if (err) return res.json({error: 'error in documentCount'});
+        if (count > 1)
+        
+      })
+    }
       
     });
     
