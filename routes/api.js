@@ -32,16 +32,16 @@ module.exports = function (app) {
       Stock.countDocuments({ stock: stockName }, function(err, count){
         if (err) return console.log('error in count');
         if (count > 0) {
-          Stock.findOne({stock: stockName}, function(err, data){
+          Stock.findOne({stock: stockName}, async function(err, data){
             if (err) return console.log('error in findOne');
+            
             let url = "https://repeated-alpaca.glitch.me/v1/stock/" + stockName.toLowerCase() + "/quote"
-            data.price = https.get(url, function(resp){
-                resp.on('data', function(chunk){
-                  return  chunk.latestPrice;
-                });
-                }).on("error", function(e){
-                    console.log("Got error: " + e.message);
-            });;
+            
+            
+            
+            
+            
+            data.price = '';
             req.query.like == true ? data.likes++ : null;
             data.save().then(
             res.json({stockData: {stock: data.stock, price: data.price, likes: data.likes}}))
