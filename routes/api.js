@@ -38,11 +38,13 @@ module.exports = function (app) {
               let url = "https://repeated-alpaca.glitch.me/v1/stock/" + stockName.toLowerCase() + "/quote"
               let response = await fetch(url);
               let data = await response.json();
+              
+              if (data) { return data.latestPrice  }
             
             
             
             }
-            data.price = '';
+            data.price = stockHandler;
             req.query.like == true ? data.likes++ : null;
             data.save().then(
             res.json({stockData: {stock: data.stock, price: data.price, likes: data.likes}}))
