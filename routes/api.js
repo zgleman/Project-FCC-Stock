@@ -34,13 +34,14 @@ module.exports = function (app) {
         if (count > 0) {
           Stock.findOne({stock: stockName}, async function(err, data){
             if (err) return console.log('error in findOne');
+            let stockHandler = async function(){
+              let url = "https://repeated-alpaca.glitch.me/v1/stock/" + stockName.toLowerCase() + "/quote"
+              let response = await fetch(url);
+              let data = await response.json();
             
-            let url = "https://repeated-alpaca.glitch.me/v1/stock/" + stockName.toLowerCase() + "/quote"
             
             
-            
-            
-            
+            }
             data.price = '';
             req.query.like == true ? data.likes++ : null;
             data.save().then(
