@@ -34,27 +34,13 @@ module.exports = function (app) {
         if (count > 0) {
           Stock.findOne({stock: stockName}, function(err, data){
             if (err) return console.log('error in findOne');
-            data.price = "https://finance.google.com/finance/info?q=NASDAQ%3a" + stockName.toUpperCase();
+            data.price = '';
             req.query.like == true ? data.likes++ : null;
             data.save().then(
             res.json({stockData: {stock: data.stock, price: data.price, likes: data.likes}}))
           })
         } else if (count == 0) {
-          var price = https.get("https://finance.google.com/finance/info?q=NASDAQ%3a" + stockName.toUpperCase(), (resp) => {
-              let data = '';
-
-              resp.on('data', (chunk) => {
-                data += chunk;
-              });
-
-  
-             resp.on('end', () => {
-             return JSON.parse(data).explanation;
-             });
-
-}).on("error", (err) => {
-  console.log("Error: " + err.message);
-});
+          var price = await request.get('https://repeated-alpaca.glitch.me/v1/stock/' +  + '/quote');
           var likes = 0;
           req.query.like == true ? likes++ : null;
           Stock.create({stock: stockName,
