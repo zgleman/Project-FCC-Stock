@@ -33,12 +33,15 @@ module.exports = function (app) {
       Stock.countDocuments({ stock: stockName }, function(err, count){
         if (err) return console.log('error in count');
         if (count > 0) {
-          Stock.findOne({stock: stockName}, async function(err, data){
+          Stock.findOne({stock: stockName}, function(err, data){
             if (err) return console.log('error in findOne');
             let url = 'https://repeated-alpaca.glitch.me/v1/stock/' + stockName + '/quote';
             data.price = request(url, function (error, response, body) {
-              return body.latestPrice;
-              });
+              console.error('error:', error); // Print the error if one occurred
+              console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+              console.log('body:', body); // Print the HTML for the Google homepage.
+              console.log(body["latestPrice"]);
+              })
             req.query.like == true ? data.likes++ : null;
             data.save().then(
             res.json({stockData: {stock: data.stock, price: data.price, likes: data.likes}}))
