@@ -25,12 +25,20 @@ module.exports = function (app) {
     .get(function (req, res){
       var stockName = req.query.stock
       console.log(stockName);
-    if(stockName.isArray()){
+    if(Array.isArray()){
       res.json({wait: 'route in progress'})
     } else {
       Stock.documentCount({ stock: stockName}, function(err, count){
-        if (err) return res.json({error: 'error in documentCount'});
-        if (count > 1)
+        if (err) return console.log('error in documentCount');
+        if (count > 0) {
+          Stock.findOne({stock: stockName}, function(err, data){
+            if (err) return console.log('error in findOne');
+            data.price = "https://finance.google.com/finance/info?q=NASDAQ%3a" + stockName.toUpperCase();
+            if (req.query.like=true) {data.likes++}
+            data.save().then(
+            res.json({stockData: {stock: data.stock, price: data.price, likes: data.likes}}))
+          })
+        }
         
       })
     }
