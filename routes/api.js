@@ -11,6 +11,7 @@
 var expect = require('chai').expect;
 var MongoClient = require('mongodb');
 const mongoose=require('mongoose');
+const https = require('https');
 
 const CONNECTION_STRING = process.env.DB; //MongoClient.connect(CONNECTION_STRING, function(err, db) {});
 mongoose.connect(CONNECTION_STRING, {useNewUrlParser: true});
@@ -34,14 +35,28 @@ module.exports = function (app) {
           Stock.findOne({stock: stockName}, function(err, data){
             if (err) return console.log('error in findOne');
             data.price = "https://finance.google.com/finance/info?q=NASDAQ%3a" + stockName.toUpperCase();
-            if (req.query.like=true) {data.likes++}
+            req.query.like == true ? data.likes++ : null;
             data.save().then(
             res.json({stockData: {stock: data.stock, price: data.price, likes: data.likes}}))
           })
         } else if (count == 0) {
-          var price = "https://finance.google.com/finance/info?q=NASDAQ%3a" + stockName.toUpperCase();
+          var price = https.get("https://finance.google.com/finance/info?q=NASDAQ%3a" + stockName.toUpperCase(), (resp) => {
+              let data = '';
+
+              resp.on('data', (chunk) => {
+                data += chunk;
+              });
+
+  
+             resp.on('end', () => {
+             return JSON.parse(data).explanation;
+             });
+
+}).on("error", (err) => {
+  console.log("Error: " + err.message);
+});
           var likes = 0;
-          if (req.query.like==true) {likes++}
+          req.query.like == true ? likes++ : null;
           Stock.create({stock: stockName,
                        price: price,
                        likes: likes}, function(err, data){
