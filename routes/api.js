@@ -12,6 +12,7 @@ var expect = require('chai').expect;
 var MongoClient = require('mongodb');
 const mongoose=require('mongoose');
 const https = require('https');
+const request = require('request');
 
 const CONNECTION_STRING = process.env.DB; //MongoClient.connect(CONNECTION_STRING, function(err, db) {});
 mongoose.connect(CONNECTION_STRING, {useNewUrlParser: true});
@@ -34,17 +35,10 @@ module.exports = function (app) {
         if (count > 0) {
           Stock.findOne({stock: stockName}, async function(err, data){
             if (err) return console.log('error in findOne');
-            let stockHandler = async function(){
-              let url = "https://repeated-alpaca.glitch.me/v1/stock/" + stockName.toLowerCase() + "/quote"
-              let response = await fetch(url);
-              let data = await response.json();
-              
-              if (data) { return data.latestPrice  }
-            
-            
-            
-            }
-            data.price = stockHandler;
+            let url = 'https://repeated-alpaca.glitch.me/v1/stock/' + stockName + '/quote';
+            data.price = request(url, function (error, response, body) {
+              return body.latestPrice;
+              });
             req.query.like == true ? data.likes++ : null;
             data.save().then(
             res.json({stockData: {stock: data.stock, price: data.price, likes: data.likes}}))
