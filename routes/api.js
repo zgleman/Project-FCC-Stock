@@ -25,11 +25,11 @@ module.exports = function (app) {
     .get(function (req, res){
       var stockName = req.query.stock
       console.log(stockName);
-    if(Array.isArray()){
+    if(Array.isArray(stockName)){
       res.json({wait: 'route in progress'})
     } else {
-      Stock.documentCount({ stock: stockName}, function(err, count){
-        if (err) return console.log('error in documentCount');
+      Stock.countDocuments({ stock: stockName }, function(err, count){
+        if (err) return console.log('error in count');
         if (count > 0) {
           Stock.findOne({stock: stockName}, function(err, data){
             if (err) return console.log('error in findOne');
@@ -37,6 +37,16 @@ module.exports = function (app) {
             if (req.query.like=true) {data.likes++}
             data.save().then(
             res.json({stockData: {stock: data.stock, price: data.price, likes: data.likes}}))
+          })
+        } else if (count == 0) {
+          var price = "https://finance.google.com/finance/info?q=NASDAQ%3a" + stockName.toUpperCase();
+          var likes = 0;
+          if (req.query.like==true) {likes++}
+          Stock.create({stock: stockName,
+                       price: price,
+                       likes: likes}, function(err, data){
+            if (err) return console.log('error saving doc');
+            res.json({stockData: {stock: data.stock, price: data.price, likes: data.likes}});
           })
         }
         
