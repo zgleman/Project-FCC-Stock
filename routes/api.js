@@ -31,40 +31,38 @@ module.exports = function(app) {
     console.log(stockName);
 
     if (Array.isArray(stockName)) {
+      let test = function () {
+        return {this: 'is the result'}
+      let pleaseWork = test.json();
+      console.log(pleaseWork);
+      console.log('test')
+      }
+      
+      
       res.json({ wait: "route in progress" });
     } else {
+            let url = "https://repeated-alpaca.glitch.me/v1/stock/" + stockName + "/quote";
+            let response = await fetch(url);
+            let raw = await response.json();
       Stock.countDocuments({ stock: stockName }, async function(err, count) {
         if (err) return console.log("error in count");
         if (count > 0) {
           Stock.findOne({ stock: stockName }, async function(err, data) {
             if (err) return console.log("error in findOne");
-
-            let url =
-              "https://repeated-alpaca.glitch.me/v1/stock/" +
-              stockName +
-              "/quote";
-            let response = await fetch(url);
-            let raw = await response.json();
             data.price = raw.latestPrice;
             like == true ? data.likes++ : null;
             data.save().then(function(data) {
-              let obj = {
+              res.json({
                 stockData: {
                   stock: data.stock,
                   price: data.price,
                   likes: data.likes
                 }
-              };
-              res.json({ obj });
+              });
+              
             });
           });
         } else if (count == 0) {
-          let url =
-            "https://repeated-alpaca.glitch.me/v1/stock/" +
-            stockName +
-            "/quote";
-          let response = await fetch(url);
-          let raw = await response.json();
           var price = raw.latestPrice;
           var likes = 0;
           like == true ? likes++ : null;
@@ -72,14 +70,13 @@ module.exports = function(app) {
             { stock: stockName, price: price, likes: likes },
             function(err, data) {
               if (err) return console.log("error saving doc");
-              let obj = {
+              res.json({
                 stockData: {
                   stock: data.stock,
                   price: data.price,
                   likes: data.likes
                 }
-              };
-              res.json({ obj });
+              });
             }
           );
         }
