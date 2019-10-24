@@ -32,8 +32,12 @@ module.exports = function(app) {
     console.log(stockName);
 
     if (Array.isArray(stockName)) {
-      
-      
+      let url1 = "https://repeated-alpaca.glitch.me/v1/stock/" + stockName[0] + "/quote";
+      let response1 = await fetch(url1);
+      let raw1 = await response1.json();
+      let url2 = "https://repeated-alpaca.glitch.me/v1/stock/" + stockName[1] + "/quote";
+      let response2 = await fetch(url2);
+      let raw2 = await response2.json();
       
       res.json({ wait: "route in progress" });
     } else {
@@ -49,8 +53,7 @@ module.exports = function(app) {
             like == true ? data.likes++ : null;
             data.save().then(function(data) {
               res.json({
-                stockData: {
-                  stock: data.stock,
+                stockData: {stock: data.stock,
                   price: data.price,
                   likes: data.likes
                 }
