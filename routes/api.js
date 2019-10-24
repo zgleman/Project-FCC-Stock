@@ -40,13 +40,11 @@ module.exports = function (app) {
               let data = '';
               resp.on('data', (chunk) => { data += chunk;});
               resp.on('end', () => {
-                
-                
-              data.price = JSON.parse(data).latestPrice;
-            
-            req.query.like == true ? data.likes++ : null;
-            data.save().then(
-            res.json({stockData: {stock: data.stock, price: data.price, likes: data.likes}}))
+                               
+                data.price = JSON.parse(data).latestPrice;
+                req.query.like == true ? data.likes++ : null;
+                data.save().then(
+                res.json({stockData: {stock: data.stock, price: data.price, likes: data.likes}}))
               });
                 }).on("error", (err) => {
                 console.log("Error: " + err.message);
