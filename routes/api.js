@@ -36,10 +36,10 @@ module.exports = function (app) {
           Stock.findOne({stock: stockName}, async function(err, data){
             if (err) return console.log('error in findOne');
             let url = 'https://repeated-alpaca.glitch.me/v1/stock/' + stockName + '/quote';
-            let apiData = await request(url, function (error, response, body) {
+            let apiData = request(url, function (error, response, body) {
               console.error('error:', error); // Print the error if one occurred
               console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-              console.log('body:', body); // Print the HTML for the Google homepage.
+              console.log('body:', body.latestPrice); // Print the HTML for the Google homepage.
               return body;
               })
             data.price = apiData.latestPrice;
