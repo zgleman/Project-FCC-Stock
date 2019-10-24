@@ -21,16 +21,8 @@ const Stock = mongoose.model('Stock', {stock: String,
                                       price: String,
                                       likes: Number});
 module.exports = function (app) {
-
-  app.route('/api/stock-prices')
-    .get(function (req, res){
-      var stockName = req.query.stock
-      console.log(stockName);
-    if(Array.isArray(stockName)){
-      
-      res.json({wait: 'route in progress'})
-    } else {
-      Stock.countDocuments({ stock: stockName }, async function(err, count){
+  function getStock(stockName, like){
+    Stock.countDocuments({ stock: stockName }, async function(err, count){
         if (err) return console.log('error in count');
         if (count > 0) {
           Stock.findOne({stock: stockName}, async function(err, data){
@@ -39,9 +31,9 @@ module.exports = function (app) {
             let response = await fetch(url);
             let raw = await response.json();
             data.price = raw.latestPrice;
-            req.query.like == true ? data.likes++ : null;
-            data.save().then(
-            res.json({stockData: {stock: data.stock, price: data.price, likes: data.likes}}))
+            like == true ? data.likes++ : null;
+            data.save().then(function(data){
+            return {stockData: {stock: data.stock, price: data.price, likes: data.likes}}})
             
           })
         } else if (count == 0) {
@@ -50,16 +42,30 @@ module.exports = function (app) {
           let raw = await response.json();
           var price = raw.latestPrice;
           var likes = 0;
-          req.query.like == true ? likes++ : null;
+          like == true ? likes++ : null;
           Stock.create({stock: stockName,
                        price: price,
                        likes: likes}, function(err, data){
             if (err) return console.log('error saving doc');
-            res.json({stockData: {stock: data.stock, price: data.price, likes: data.likes}});
+            return {stockData: {stock: data.stock, price: data.price, likes: data.likes}};
           })
         }
         
       })
+    
+  };
+  app.route('/api/stock-prices')
+    .get(function (req, res){
+      var stockName = req.query.stock;
+      var like = req.query.like;
+      console.log(stockName);
+    
+    if(Array.isArray(stockName)){
+      
+      res.json({wait: 'route in progress'})
+    } else {
+      
+      console.log(getStock(stockName, like));
     }
       
     });
