@@ -28,18 +28,59 @@ module.exports = function(app) {
   app.route("/api/stock-prices").get(async function(req, res) {
     var stockName = req.query.stock;
     var like = req.query.like;
+    let getStock = async function (stockName, like) {
+            let url = "https://repeated-alpaca.glitch.me/v1/stock/" + stockName + "/quote";
+            let response = await fetch(url);
+            let raw = await response.json();
+      Stock.countDocuments({ stock: stockName }, async function(err, count) {
+        if (err) return console.log("error in count");
+        if (count > 0) {
+          Stock.findOne({ stock: stockName }, async function(err, data) {
+            if (err) return console.log("error in findOne");
+            data.price = raw.latestPrice;
+            like == true ? data.likes++ : null;
+            data.save().then(function(data) {
+              return{
+                stockData: {
+                  stock: data.stock,
+                  price: data.price,
+                  likes: data.likes
+                }
+              };
+              
+            });
+          });
+        } else if (count == 0) {
+          var price = raw.latestPrice;
+          var likes = 0;
+          like == true ? likes++ : null;
+          Stock.create(
+            { stock: stockName, price: price, likes: likes },
+            function(err, data) {
+              if (err) return console.log("error saving doc");
+              return{
+                stockData: {
+                  stock: data.stock,
+                  price: data.price,
+                  likes: data.likes
+                }
+              };
+            }
+          );
+        }
+      });
+    }
     console.log(stockName);
 
     if (Array.isArray(stockName)) {
-      let test = function () {
-        return {this: 'is the result'}
-      let pleaseWork = test.json();
+      
+      let test = function (input) {
+        return {this: input + 'is the result'}};
+      let pleaseWork = test('fuck');
       console.log(pleaseWork);
-      console.log('test')
-      }
       
+      console.log(getStock('goog', like))
       
-      res.json({ wait: "route in progress" });
     } else {
             let url = "https://repeated-alpaca.glitch.me/v1/stock/" + stockName + "/quote";
             let response = await fetch(url);
