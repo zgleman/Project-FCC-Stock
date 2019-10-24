@@ -24,6 +24,8 @@ const Stock = mongoose.model("Stock", {
   price: String,
   likes: Number
 });
+
+ 
 module.exports = function(app) {
   app.route("/api/stock-prices").get(async function(req, res) {
     var stockName = req.query.stock;
@@ -44,7 +46,7 @@ module.exports = function(app) {
             let url = "https://repeated-alpaca.glitch.me/v1/stock/" + stockName + "/quote";
             let response = await fetch(url);
             let raw = await response.json();
-      Stock.countDocuments({ stock: stockName }, async function(err, count) {
+        Stock.countDocuments({ stock: stockName }, async function(err, count) {
         if (err) return console.log("error in count");
         if (count > 0) {
           Stock.findOne({ stock: stockName }, async function(err, data) {
@@ -52,13 +54,7 @@ module.exports = function(app) {
             data.price = raw.latestPrice;
             like == true ? data.likes++ : null;
             data.save().then(function(data) {
-              res.json({
-                stockData: {stock: data.stock,
-                  price: data.price,
-                  likes: data.likes
-                }
-              });
-              
+              res.json({stockData: {stock: data.stock, price: data.price, likes: data.likes}});              
             });
           });
         } else if (count == 0) {
@@ -69,13 +65,7 @@ module.exports = function(app) {
             { stock: stockName, price: price, likes: likes },
             function(err, data) {
               if (err) return console.log("error saving doc");
-              res.json({
-                stockData: {
-                  stock: data.stock,
-                  price: data.price,
-                  likes: data.likes
-                }
-              });
+              res.json({ stockData: { stock: data.stock, price: data.price, likes: data.likes}});
             }
           );
         }
