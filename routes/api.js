@@ -29,7 +29,7 @@ module.exports = function (app) {
     if(Array.isArray(stockName)){
       res.json({wait: 'route in progress'})
     } else {
-      Stock.countDocuments({ stock: stockName }, function(err, count){
+      Stock.countDocuments({ stock: stockName }, async function(err, count){
         if (err) return console.log('error in count');
         if (count > 0) {
           Stock.findOne({stock: stockName}, async function(err, data){
@@ -40,11 +40,14 @@ module.exports = function (app) {
             data.price = raw.latestPrice;
             req.query.like == true ? data.likes++ : null;
             data.save().then(
-                res.json({stockData: {stock: data.stock, price: data.price, likes: data.likes}}))
+            res.json({stockData: {stock: data.stock, price: data.price, likes: data.likes}}))
             
           })
         } else if (count == 0) {
-          var price = '';
+          let url = 'https://repeated-alpaca.glitch.me/v1/stock/' + stockName + '/quote';
+          let response = await fetch(url);
+          let raw = await response.json();
+          var price = raw.latestPrice;
           var likes = 0;
           req.query.like == true ? likes++ : null;
           Stock.create({stock: stockName,
