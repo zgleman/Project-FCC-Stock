@@ -36,16 +36,18 @@ module.exports = function (app) {
           Stock.findOne({stock: stockName}, async function(err, data){
             if (err) return console.log('error in findOne');
             let url = 'https://repeated-alpaca.glitch.me/v1/stock/' + stockName + '/quote';
-            let apiData = request(url, function (error, response, body) {
-              console.error('error:', error); // Print the error if one occurred
-              console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-              
-              console.log('body:', body); 
-             
-              return body;
-              })
+            let latestPrice = await https.get(url, (resp) => {
+              let input = '';
+              resp.on('input', (chunk) => { input += chunk; });  
+              resp.on('end', () => {
+                return JSON.parse(input);
+                });
+
+              }).on("error", (err) => {
+                console.log("Error: " + err.message);
+              });
+            console.log(latestPrice);
             data.price = '';
-            
             req.query.like == true ? data.likes++ : null;
             data.save().then(
             res.json({stockData: {stock: data.stock, price: data.price, likes: data.likes}}))
