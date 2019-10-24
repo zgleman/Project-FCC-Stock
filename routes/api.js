@@ -13,7 +13,7 @@ var MongoClient = require('mongodb');
 const mongoose=require('mongoose');
 const fetch = require('node-fetch');
 
-const CONNECTION_STRING = process.env.DB; //MongoClient.connect(CONNECTION_STRING, function(err, db) {});
+const CONNECTION_STRING = process.env.DB; 
 mongoose.connect(CONNECTION_STRING, {useNewUrlParser: true});
 var db = mongoose.connection;
 db.once('open', function(){console.log('Connected to Database')});
@@ -27,6 +27,7 @@ module.exports = function (app) {
       var stockName = req.query.stock
       console.log(stockName);
     if(Array.isArray(stockName)){
+      
       res.json({wait: 'route in progress'})
     } else {
       Stock.countDocuments({ stock: stockName }, async function(err, count){
