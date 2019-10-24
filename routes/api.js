@@ -39,7 +39,8 @@ module.exports = function (app) {
             let apiData = request(url, function (error, response, body) {
               console.error('error:', error); // Print the error if one occurred
               console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-              console.log('body:', body.latestPrice); // Print the HTML for the Google homepage.
+              let data = body;
+              console.log('body:', data.latestPrice); // Print the HTML for the Google homepage.
               return body;
               })
             data.price = apiData.latestPrice;
