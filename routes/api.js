@@ -30,9 +30,8 @@ module.exports = function(app) {
   app.route("/api/stock-prices").get(async function(req, res) {
     var stockName = req.query.stock;
     var like = req.query.like;
-    var userIp = req.headers["x-forwarded-for"].split(",")[0];
-    console.log(stockName);
-    console.log(like);
+    var userIp = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+    console.log(userIp);
     if (Array.isArray(stockName)) {
       let url1 =
         "https://repeated-alpaca.glitch.me/v1/stock/" + stockName[0] + "/quote";
@@ -48,7 +47,7 @@ module.exports = function(app) {
           Stock.findOne({ stock: stockName[0] }, async function(err, data) {
             if (err) return console.log("error in findOne");
             data.price = raw1.latestPrice;
-            if (like == true && data.ip.indexOf(userIp) == -1) {
+            if (like == 'true' && data.ip.indexOf(userIp) == -1) {
               data.likes++;
               data.ip.push(userIp);
             }
@@ -59,7 +58,7 @@ module.exports = function(app) {
                   Stock.findOne({ stock: stockName[1] }, async function(err, data2) {
                     if (err) return console.log("error in findOne");
                     data2.price = raw2.latestPrice;
-                    if (like == true && data2.ip.indexOf(userIp) == -1) {
+                    if (like == 'true' && data2.ip.indexOf(userIp) == -1) {
                       data2.likes++;
                       data2.ip.push(userIp);
                     }
@@ -71,7 +70,7 @@ module.exports = function(app) {
                   var price = raw2.latestPrice;
                   var likes = 0;
                   var ip = [];
-                  if (like == true) {
+                  if (like == 'true') {
                       likes++;
                       ip.push(userIp);
                     }
@@ -90,7 +89,10 @@ module.exports = function(app) {
           var price = raw1.latestPrice;
           var likes = 0;
           var ip = [];
-          like == true ? likes++ && ip.push(userIp) : null;
+          if (like == 'true') {
+                      likes++;
+                      ip.push(userIp);
+                    }
           Stock.create(
             { stock: stockName[0], price: price, likes: likes, ip: ip },
             function(err, data) {
@@ -101,7 +103,7 @@ module.exports = function(app) {
                   Stock.findOne({ stock: stockName[1] }, async function(err, data2) {
                     if (err) return console.log("error in findOne");
                     data2.price = raw2.latestPrice;
-                    if (like == true && data2.ip.indexOf(userIp) == -1) {
+                    if (like == 'true' && data2.ip.indexOf(userIp) == -1) {
                       data2.likes++;
                       data2.ip.push(userIp);
                     }
@@ -113,7 +115,7 @@ module.exports = function(app) {
                   var price = raw2.latestPrice;
                   var likes = 0;
                   var ip = [];
-                  if (like == true) {
+                  if (like == 'true') {
                       likes++;
                       ip.push(userIp);
                     }
@@ -138,10 +140,13 @@ module.exports = function(app) {
       Stock.countDocuments({ stock: stockName }, async function(err, count) {
         if (err) return console.log("error in count");
         if (count > 0) {
-          Stock.findOne({ stock: stockName }, function(err, data) {
+          Stock.findOne({ stock: stockName }, async function(err, data) {
             if (err) return console.log("error in findOne");
             data.price = raw.latestPrice;
-            like == true ? console.log('test') : null;     
+            if (like == 'true' && data.ip.indexOf(userIp) == -1) {
+                      data.likes++;
+                      data.ip.push(userIp);
+                    }
             data.save().then(function(data) {
               res.json({
                 stockData: {
@@ -156,7 +161,7 @@ module.exports = function(app) {
           var price = raw.latestPrice;
           var likes = 0;
           var ip = [];
-          if (like == true) {
+          if (like == 'true') {
                       likes++;
                       ip.push(userIp);
                     }
