@@ -48,7 +48,7 @@ module.exports = function(app) {
           Stock.findOne({ stock: stockName[0] }, async function(err, data) {
             if (err) return console.log("error in findOne");
             data.price = raw1.latestPrice;
-            if (like == true & data.ip.indexOf(userIp) == -1) {
+            if (like == true && data.ip.indexOf(userIp) == -1) {
               data.likes++;
               data.ip.push(userIp);
             }
@@ -59,7 +59,7 @@ module.exports = function(app) {
                   Stock.findOne({ stock: stockName[1] }, async function(err, data2) {
                     if (err) return console.log("error in findOne");
                     data2.price = raw2.latestPrice;
-                    if (like == true & data2.ip.indexOf(userIp) == -1) {
+                    if (like == true && data2.ip.indexOf(userIp) == -1) {
                       data2.likes++;
                       data2.ip.push(userIp);
                     }
@@ -71,7 +71,10 @@ module.exports = function(app) {
                   var price = raw2.latestPrice;
                   var likes = 0;
                   var ip = [];
-                  like == true ? likes++ && ip.push(userIp) : null;
+                  if (like == true) {
+                      likes++;
+                      ip.push(userIp);
+                    }
                   Stock.create(
                     { stock: stockName[1], price: price, likes: likes, ip: ip},
                     function(err, data2) {
@@ -98,7 +101,7 @@ module.exports = function(app) {
                   Stock.findOne({ stock: stockName[1] }, async function(err, data2) {
                     if (err) return console.log("error in findOne");
                     data2.price = raw2.latestPrice;
-                    if (like == true & data2.ip.indexOf(userIp) == -1) {
+                    if (like == true && data2.ip.indexOf(userIp) == -1) {
                       data2.likes++;
                       data2.ip.push(userIp);
                     }
@@ -110,7 +113,10 @@ module.exports = function(app) {
                   var price = raw2.latestPrice;
                   var likes = 0;
                   var ip = [];
-                  like == true ? likes++ && ip.push(userIp) : null;
+                  if (like == true) {
+                      likes++;
+                      ip.push(userIp);
+                    }
                   Stock.create(
                     { stock: stockName[1], price: price, likes: likes, ip: ip },
                     function(err, data2) {
@@ -135,10 +141,13 @@ module.exports = function(app) {
           Stock.findOne({ stock: stockName }, async function(err, data) {
             if (err) return console.log("error in findOne");
             data.price = raw.latestPrice;
-            if (like == true & data.ip.indexOf(userIp) == -1) {
-                      data.likes++;
-                      data.ip.push(userIp);
-                    }
+            console.log(data.ip.indexOf(userIp)==-1);
+            console.log(like);
+            if (like == true && data.ip.indexOf(userIp) == -1) {
+              console.log('test');        
+              data.likes++;
+              data.ip.push(userIp);
+                    } else {null}
             data.save().then(function(data) {
               res.json({
                 stockData: {
