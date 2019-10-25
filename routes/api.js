@@ -22,14 +22,14 @@ db.once("open", function() {
 const Stock = mongoose.model("Stock", {
   stock: String,
   price: String,
-  likes: Number
+  likes: [String]
 });
 
 module.exports = function(app) {
   app.route("/api/stock-prices").get(async function(req, res) {
     var stockName = req.query.stock;
     var like = req.query.like;
-
+    var ip = req.headers["x-forwarded-for"].split(",")[0];
     console.log(stockName);
 
     if (Array.isArray(stockName)) {
@@ -57,7 +57,7 @@ module.exports = function(app) {
                     data2.price = raw2.latestPrice;
                     like == true ? data2.likes++ : null;
                     data2.save().then(function(data2) {
-                      res.json({stockData: [{ stock: data.stock, price: data.price, rel_likes: data.likes }, { stock: data2.stock, price: data2.price, rel_likes: data2.likes}]});
+                      res.json({stockData: [{ stock: data.stock, price: data.price, rel_likes: data.likes - data2.likes}, { stock: data2.stock, price: data2.price, rel_likes: data2.likes - data.likes}]});
                     });
                   });
                 } else if (count == 0) {
@@ -102,7 +102,7 @@ module.exports = function(app) {
                     { stock: stockName[1], price: price, likes: likes },
                     function(err, data2) {
                       if (err) return console.log("error saving doc");
-                      res.json({stockData: [{ stock: data.stock, price: data.price, rel_likes: data.likes }, { stock: data2.stock, price: data2.price, rel_likes: data2.likes}]});
+                      res.json({stockData: [{ stock: data.stock, price: data.price, rel_likes: data.likes - data2.likes}, { stock: data2.stock, price: data2.price, rel_likes: data2.likes - data.likes}]});
                     }
                   );
                 }
