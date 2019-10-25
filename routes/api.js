@@ -68,7 +68,7 @@ module.exports = function(app) {
                     { stock: stockName[1], price: price, likes: likes },
                     function(err, data2) {
                       if (err) return console.log("error saving doc");
-                      res.json({stockData: [{ stock: data.stock, price: data.price, rel_likes: data.likes }, { stock: data2.stock, price: data2.price, rel_likes: data2.likes}]});
+                      res.json({stockData: [{ stock: data.stock, price: data.price, rel_likes: data.likes - data2.likes}, { stock: data2.stock, price: data2.price, rel_likes: data2.likes - data.likes}]});
                     }
                   );
                 }
@@ -91,7 +91,7 @@ module.exports = function(app) {
                     data2.price = raw2.latestPrice;
                     like == true ? data2.likes++ : null;
                     data2.save().then(function(data2) {
-                      res.json({stockData: [{ stock: data.stock, price: data.price, rel_likes: data.likes }, { stock: data2.stock, price: data2.price, rel_likes: data2.likes}]});
+                      res.json({stockData: [{ stock: data.stock, price: data.price, rel_likes: data.likes - data2.likes}, { stock: data2.stock, price: data2.price, rel_likes: data2.likes - data.likes}]});
                     });
                   });
                 } else if (count == 0) {
