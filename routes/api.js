@@ -138,16 +138,10 @@ module.exports = function(app) {
       Stock.countDocuments({ stock: stockName }, async function(err, count) {
         if (err) return console.log("error in count");
         if (count > 0) {
-          Stock.findOne({ stock: stockName }, async function(err, data) {
+          Stock.findOne({ stock: stockName }, function(err, data) {
             if (err) return console.log("error in findOne");
             data.price = raw.latestPrice;
-            console.log(data.ip.indexOf(userIp)==-1);
-            console.log(like);
-            if (like == true && data.ip.indexOf(userIp) == -1) {
-              console.log('test');        
-              data.likes++;
-              data.ip.push(userIp);
-                    } else {null}
+            like == true ? console.log('test') : null;     
             data.save().then(function(data) {
               res.json({
                 stockData: {
