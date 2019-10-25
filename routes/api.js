@@ -22,7 +22,8 @@ db.once("open", function() {
 const Stock = mongoose.model("Stock", {
   stock: String,
   price: String,
-  likes: [String]
+  likes: Number,
+  ip: [String]
 });
 
 module.exports = function(app) {
@@ -47,7 +48,10 @@ module.exports = function(app) {
           Stock.findOne({ stock: stockName[0] }, async function(err, data) {
             if (err) return console.log("error in findOne");
             data.price = raw1.latestPrice;
-            like == true ? data.likes++ : null;
+            if (like == true & data.ip.indexOf(ip) == -1) {
+              data.likes++;
+              data.ip.push(ip);
+            }
             data.save().then(function(data) {
               Stock.countDocuments({ stock: stockName[1] }, async function(err, count) {
                 if (err) return console.log("error in count");
@@ -55,7 +59,10 @@ module.exports = function(app) {
                   Stock.findOne({ stock: stockName[1] }, async function(err, data2) {
                     if (err) return console.log("error in findOne");
                     data2.price = raw2.latestPrice;
-                    like == true ? data2.likes++ : null;
+                    if (like == true & data2.ip.indexOf(ip) == -1) {
+                      data2.likes++;
+                      data2.ip.push(ip);
+                    }
                     data2.save().then(function(data2) {
                       res.json({stockData: [{ stock: data.stock, price: data.price, rel_likes: data.likes - data2.likes}, { stock: data2.stock, price: data2.price, rel_likes: data2.likes - data.likes}]});
                     });
@@ -63,9 +70,10 @@ module.exports = function(app) {
                 } else if (count == 0) {
                   var price = raw2.latestPrice;
                   var likes = 0;
-                  like == true ? likes++ : null;
+                  var ip = [];
+                  like == true ? likes++ && : null;
                   Stock.create(
-                    { stock: stockName[1], price: price, likes: likes },
+                    { stock: stockName[1], price: price, likes: likes, ip:[]},
                     function(err, data2) {
                       if (err) return console.log("error saving doc");
                       res.json({stockData: [{ stock: data.stock, price: data.price, rel_likes: data.likes - data2.likes}, { stock: data2.stock, price: data2.price, rel_likes: data2.likes - data.likes}]});
